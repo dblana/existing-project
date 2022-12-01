@@ -1,0 +1,47 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Day 1 task 1: count the number of times a depth measurement increases from the previous measurement.
+
+First, let's read in the data:
+
+```{r}
+depth_meas <- as.numeric(readLines("data/input1.txt"))
+```
+
+Calculate difference between subsequent rows and sum the positive ones:
+
+```{r}
+depth_diff <- diff(depth_meas)
+sum_pos_diff <- sum(depth_diff > 0)
+  
+```
+
+Task 2: Consider sums of a three-measurement sliding window. How many sums are larger than the previous sum?
+
+Let's calculate all three-measurement sums first:
+
+```{r}
+length_sums <- length(depth_meas)-2
+three_sums <- depth_meas[1:length_sums] + depth_meas[2:(length_sums+1)] + depth_meas[3:(length_sums+2)]
+
+```
+
+Like before, calculate difference between subsequent rows and sum the positive ones:
+
+```{r}
+three_sums_diff <- diff(three_sums)
+sum3_pos_diff <- sum(three_sums_diff > 0)
+  
+```
+
+From twitter: sliding windows of length 3 will have the middle values in common, so you can just compare the values that enter/exit the window.
+(And diff has a lag input!)
+
+```{r}
+sum3_pos_diff <- sum(diff(depth_meas,3)>0)
+
+```
+

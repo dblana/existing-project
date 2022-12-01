@@ -1,0 +1,55 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(readr)
+library(dplyr)
+```
+
+First, let's read in the input file:
+
+```{r}
+course <- read_table2("data/input2.txt", 
+    col_names = c("direction","steps"), col_types = cols(steps = col_integer()))
+```
+
+Task 1: Calculate the horizontal position and depth you would have after following the planned course. What do you get if you multiply your final horizontal position by your final depth?
+
+```{r}
+
+course <- course %>%
+  mutate(depth_step = case_when(direction == "down" ~ steps,
+                              direction == "up" ~ -steps, 
+                              direction == "forward" ~ as.integer(0)),
+         horiz_step = ifelse(direction == "forward", steps, as.integer(0)))
+         
+destination <- course %>%
+  summarise(hoz_pos = sum(horiz_step),
+            final_dep = sum(depth_step),
+            mult = hoz_pos * final_dep)
+
+```
+
+Task 2: In addition to horizontal position and depth, you'll also need to track a third value, aim, which also starts at 0. The commands also mean something entirely different than you first thought:
+
+* down X increases your aim by X units.
+* up X decreases your aim by X units.
+* forward X does two things:
+  * It increases your horizontal position by X units.
+  * It increases your depth by your aim multiplied by X.
+
+```{r}
+course <- course %>%
+  rename(aim = depth_step) %>%
+  mutate(cum_aim = cumsum(aim),
+         depth_step = cum_aim * horiz_step)
+
+destination2 <- course %>%
+  summarise(hoz_pos = sum(horiz_step),
+            final_dep = sum(depth_step),
+            mult = hoz_pos * final_dep)
+
+```
+
